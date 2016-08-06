@@ -1,4 +1,10 @@
+<?php
+require_once dirname(__FILE__) . '/class/CustomAuth.class.php';
+$url = 'http://www.google.com.br';
+$assets = 'css';
+$auth = new CustomAuth($url, $assets);
 
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,7 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Bruno Caldas">
     <meta name="layout" content="main"/>
-    <link href="css/customize-template.css" type="text/css" media="screen, projection" rel="stylesheet" />
+    <?php $auth->addCss('customize-template');?>
 </head>
 <body>
 <div id="body-container">
@@ -48,32 +54,10 @@
                         <i class="fa fa-sign-in fa-2x icon-large"></i><h5>ACESSAR HOTSPOT</h5>
                     </div>
                     <div class="box-content">
-                        <form class="form-inline" action="autentication.php" method="post">
-
-                            <legend class="lead">Usuário:</legend>
-                            <span class="add-on" rel="tooltip" title="Username" data-placement="top"><i class="icon-envelope"></i></span>
-
-                            <input class="chosen" id="ilogin" type="text" name="nlogin" value=""
-                                   size="20" maxlength="" placeholder="Digite o Usuário" required>
-
-
-                            <legend class="lead">Senha:</legend>
-
-                            <input class="chosen" id="isenha" type="password" name="nsenha" value=""
-                                   size="20" maxlength="" placeholder="Digite a Senha" required>
-
-
-                            <div class="box-footer">
-                                <button class="btn btn-primary" type="submit" name="nsubmit" id="isubmit">
-                                    <i class="fa fa-check"></i>
-                                    Entrar
-                                </button>
-                                <button class="btn btn-primary" type="reset">
-                                    <i class="fa fa-times"></i>
-                                    Limpar
-                                </button>
-                            </div>
-                        </form>
+                        <?php
+                        require_once dirname(__FILE__).'/class/CustomAuth.class.php';
+                        CustomAuth::authBox($_SERVER['PHP_SELF']);
+                        ?>
                         <hr>
                         Caso não possua um login, cadastre-se nesse <a href="www.google.com.br" target="_blank">link</a>.
                     </div>
@@ -103,3 +87,20 @@
 
 </body>
 </html>
+
+<?php
+if (isset($_POST['nlogin']) && isset($_POST['nsenha'])) {
+
+    $username = $_POST['nlogin'];
+    $pass = $_POST['nsenha'];
+
+    $login = CustomAuth::authCheck($username, $pass);
+
+    if ($login == true) {
+        header('Location:' . $auth->url);
+    } else {
+        print '<script>';
+        print "alert('Login não permitido')";
+        print '</script>';
+    }
+}
